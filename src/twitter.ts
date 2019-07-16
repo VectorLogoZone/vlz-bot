@@ -3,19 +3,9 @@ import 'source-map-support/register'
 //import Twit from 'twit';
 const Twit = require('twit');
 import Pino from 'pino';
-import PinoCaller from 'pino-caller';
 import axios from 'axios';
 
-//const serializers = Object.assign({}, Pino.stdSerializers, { request: Pino.stdSerializers.req });
- 
-const logger = PinoCaller(Pino({
-    name: 'tweet',
-    level: process.env.LOG_LEVEL || 'info',
-    redact: [ 'resp.request', 'apiResponse.resp.request.headers.Authorization' ],
-    serializers: Pino.stdSerializers,
-}));
-
-async function main() {
+async function tweetRandom(logger:Pino.Logger) {
 
     const logoResponse = await axios.get('https://api.vectorlogo.zone/api/random.json');
     logger.debug({ resp: logoResponse }, 'logo response');
@@ -96,7 +86,6 @@ async function main() {
 */  
 }
 
-main()
-    .then(() => logger.info('success'))
-    .catch(err => logger.error({ err }, 'failure'))
-    ;
+export {
+    tweetRandom
+}
