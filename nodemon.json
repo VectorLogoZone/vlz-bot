@@ -1,0 +1,20 @@
+{
+  "restartable": "rs",
+  "ignore": [
+    ".git",
+    "node_modules",
+    "tmp"
+  ],
+  "verbose": true,
+  "watch": [
+    "data/",
+    "partials/",
+    "src/",
+    "views/"
+  ],
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "exec": "tsc && node src/index.ts",
+  "ext": "csv,hbs,json,ts,yaml"
+}
