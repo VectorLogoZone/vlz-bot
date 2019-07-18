@@ -5,17 +5,18 @@ import KoaStatic from 'koa-static';
 import * as os from 'os';
 import * as twitter from './twitter';
 import Pino from 'pino';
+import PinoCaller from 'pino-caller';
 import moment from 'moment';
 
 const app = new Koa();
 app.proxy = true;
 
-const logger = Pino({
-    name: 'tweet',
+const logger = PinoCaller(Pino({
+    name: 'vlz-bot',
     level: process.env.LOG_LEVEL || 'info',
     redact: ['resp.request', 'apiResponse.resp.request.headers.Authorization'],
     serializers: Pino.stdSerializers,
-});
+}));
 
 app.use(KoaPinoLogger({ logger: logger }));
 
@@ -46,7 +47,7 @@ rootRouter.get('/', async (ctx) => {
 rootRouter.get('/tweet.json', async (ctx) => {
     try {
         const lastTweet = await twitter.getLastTimestamp(logger);
-        const nextTweetTime = moment().subtract(4, 'hours');
+        const nextTweetTime = moment().subtract(24, 'hours');
         if (lastTweet.isAfter(nextTweetTime)) {
             ctx.body = { 
                 success: false, 
