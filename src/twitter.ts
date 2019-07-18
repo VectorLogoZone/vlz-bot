@@ -4,27 +4,14 @@ import 'source-map-support/register'
 const Twit = require('twit');
 import Pino from 'pino';
 import axios from 'axios';
+import moment from 'moment';
 
-async function tweetRandom(logger:Pino.Logger) {
+type Logo = {
+    handle: string,
+    name: string
+};
 
-    const logoResponse = await axios.get('https://api.vectorlogo.zone/api/random.json');
-    logger.debug({ resp: logoResponse }, 'logo response');
-
-    logger.info({ url: logoResponse.data}, 'logo');
-    const logoHandle = logoResponse.data.logohandle;
-    const logoName = logoResponse.data.name || logoHandle;
-    const imageUrl = `https://svg2raster.fileformat.info/vlz.jsp?svg=/logos/${logoHandle}/${logoHandle}-ar21.svg&width=1024`;
-
-    const imgResponse = await axios.get(imageUrl, {
-        responseType: 'arraybuffer'
-    });
-
-    logger.debug({ resp: imgResponse }, 'img response');
-
-    if (!process.env.TWITTER_CONSUMER_KEY || !process.env.TWITTER_CONSUMER_SECRET) {
-        throw new Error('you must set TWITTER_CONSUMER_KEY and TWITTER_CONSUMER_SECRET');
-    }   
-
+async function getClient(logger:Pino.Logger):Promise<any> {
     const twitterClient = new Twit({
         consumer_key: process.env.TWITTER_CONSUMER_KEY || '',
         consumer_secret: process.env.TWITTER_CONSUMER_SECRET || '',
@@ -37,6 +24,89 @@ async function tweetRandom(logger:Pino.Logger) {
     const user = await twitterClient.get('account/verify_credentials')
     logger.debug({ apiResponse: user }, "verify_credentials result");
 
+    return twitterClient;
+}
+
+const urlRegex = RegExp('^.*/logos/([^/]+)/.*$', 'g');
+
+async function getLastTimestamp(logger:Pino.Logger): Promise<moment.Moment> { 
+    const twitterClient = await getClient(logger);
+    const timelineResponse = await twitterClient.get('statuses/user_timeline', {
+        count: 10,
+        exclude_replies: true,
+        screen_name: "VectorLogoZone",
+        trim_user: true,
+        tweet_mode: 'extended'
+    });
+
+    if (!timelineResponse.data || timelineResponse.data.length === 0) {
+        const err = new Error('No tweets in timeline');
+        logger.error( { apiResponse: timelineResponse, err }, "Unable to get most recent tweet");
+        throw err;
+    }
+
+    logger.debug({ tweet: timelineResponse.data[0] }, 'most recent tweet');
+
+    const timestamp = moment(timelineResponse.data[0].created_at, 'dd MMM DD HH:mm:ss ZZ YYYY', 'en');
+
+    return timestamp;
+}
+
+async function getRecent(logger:Pino.Logger): Promise<string[]> {
+    const retVal:string[] = [];
+    const twitterClient = await getClient(logger);
+    const timelineResponse = await twitterClient.get('statuses/user_timeline', {
+            count: 25,
+            exclude_replies: true,
+            screen_name: "VectorLogoZone",
+            trim_user: true,
+            tweet_mode: 'extended'
+        });
+
+    
+    logger.debug({ apiResponse: timelineResponse }, 'timeline response');
+
+    for (const tweet of timelineResponse.data) {
+        logger.debug({ created: tweet.created_at }, 'created');
+        for (const url of tweet.entities.urls) {
+            const matches = urlRegex.exec(url.expanded_url);
+            //logger.debug({ url: url.expanded_url, matches }, "A Tweet!");
+            if (matches != null && matches.length >= 2) {
+                retVal.push( matches[1] );
+            }
+        }
+    }
+    logger.debug( { handles: retVal }, "recently tweeted logos")
+
+    return retVal;
+}
+
+async function findRandomNotRecent(logger:Pino.Logger): Promise<Logo> {
+
+    const logoResponse = await axios.get('https://api.vectorlogo.zone/api/random.json');
+    logger.debug({ resp: logoResponse }, 'logo response');
+
+    return {
+        handle: logoResponse.data.logoHandle,
+        name: logoResponse.data.name
+    }
+}
+
+async function tweet(logger:Pino.Logger, logo:Logo) {
+
+    const imageUrl = `https://svg2raster.fileformat.info/vlz.jsp?svg=/logos/${logo.handle}/${logo.handle}-ar21.svg&width=1024`;
+
+    const imgResponse = await axios.get(imageUrl, {
+        responseType: 'arraybuffer'
+        });
+
+    logger.debug({ resp: imgResponse }, 'img response');
+
+    if (!process.env.TWITTER_CONSUMER_KEY || !process.env.TWITTER_CONSUMER_SECRET) {
+        throw new Error('you must set TWITTER_CONSUMER_KEY and TWITTER_CONSUMER_SECRET');
+    }   
+
+    const twitterClient = await getClient(logger);
 
     /*
      * plain tweet
@@ -67,14 +137,16 @@ async function tweetRandom(logger:Pino.Logger) {
     const mediaIdStr = uploadResponse.data.media_id_string;
     const metadataResponse = await twitterClient.post('media/metadata/create', {
         media_id: uploadResponse.data.media_id_string, 
-        alt_text: { text: `PNG Preview of the SVG logo for ${logoName}` } 
+        alt_text: { text: `PNG Preview of the SVG logo for ${logo.name}` } 
     });
     logger.debug({ apiResponse: metadataResponse }, 'metadata/create response');
 
     // post the tweet
     const postResult = await twitterClient.post('statuses/update', { 
-        status: `${logoName} vector (SVG) logos.\nCheck them out at https://www.vectorlogo.zone/logos/${logoHandle}/index.html`, 
-        media_ids: [mediaIdStr] 
+        status: `${logo.name} vector (SVG) logos.\nCheck them out at https://www.vectorlogo.zone/logos/${logo.handle}/index.html`, 
+        media_ids: [mediaIdStr], 
+        source: 'vlz-bot',
+        trim_user: true
     });
     logger.debug({ apiResponse: postResult }, 'update response');
 /*
@@ -87,5 +159,8 @@ async function tweetRandom(logger:Pino.Logger) {
 }
 
 export {
-    tweetRandom
+    findRandomNotRecent,
+    getLastTimestamp,
+    getRecent,
+    tweet
 }
