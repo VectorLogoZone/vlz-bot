@@ -12,4 +12,4 @@ export $(cat .env)
 #
 # run in watch mode
 #npx nodemon 
-npx tsc && node dist/tweet-cli.js | ./node_modules/.bin/pino-pretty
+npx nodemon

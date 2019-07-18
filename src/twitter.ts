@@ -87,7 +87,7 @@ async function findRandomNotRecent(logger:Pino.Logger): Promise<Logo> {
     logger.debug({ resp: logoResponse }, 'logo response');
 
     return {
-        handle: logoResponse.data.logoHandle,
+        handle: logoResponse.data.logohandle,
         name: logoResponse.data.name
     }
 }

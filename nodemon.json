@@ -7,14 +7,12 @@
   ],
   "verbose": true,
   "watch": [
-    "data/",
-    "partials/",
-    "src/",
-    "views/"
+    "static/",
+    "src/"
   ],
   "env": {
     "NODE_ENV": "development"
   },
-  "exec": "tsc && node src/index.ts",
-  "ext": "csv,hbs,json,ts,yaml"
+  "exec": "tsc && node dist/server.js | ./node_modules/.bin/pino-pretty",
+  "ext": "json,ts,yaml"
 }
