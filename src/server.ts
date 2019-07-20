@@ -47,7 +47,7 @@ rootRouter.get('/', async (ctx) => {
 rootRouter.get('/tweet.json', async (ctx) => {
     try {
         const lastTweet = await twitter.getLastTimestamp(logger);
-        const nextTweetTime = moment().subtract(24, 'hours');
+        const nextTweetTime = moment().subtract(16, 'hours');
         if (lastTweet.isAfter(nextTweetTime)) {
             ctx.body = { 
                 success: false, 
@@ -59,7 +59,7 @@ rootRouter.get('/tweet.json', async (ctx) => {
             return;
         }
         var logo = await twitter.findRandomNotRecent(logger);
-        //await twitter.tweet(logger, handle);
+        await twitter.tweet(logger, logo);
         ctx.body = { success: true, message: 'Success', logo };
     } catch (err) {
         logger.error( { err }, 'tweeting failed');

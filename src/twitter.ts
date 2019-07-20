@@ -143,7 +143,7 @@ async function tweet(logger:Pino.Logger, logo:Logo) {
 
     // post the tweet
     const postResult = await twitterClient.post('statuses/update', { 
-        status: `${logo.name} vector (SVG) logos.\nCheck them out at https://www.vectorlogo.zone/logos/${logo.handle}/index.html`, 
+        status: `${logo.name} vector (SVG) logos.  Check them out at https://vlz.one/${logo.handle}`, 
         media_ids: [mediaIdStr], 
         source: 'vlz-bot',
         trim_user: true

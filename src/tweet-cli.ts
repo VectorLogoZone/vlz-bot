@@ -14,11 +14,11 @@ const logger = PinoCaller(Pino({
 
 
 async function main() {
-    //var handle = await twitter.findRandomNotRecent(logger);
-    //await twitter.tweet(logger, handle);
+    var handle = await twitter.findRandomNotRecent(logger);
+    await twitter.tweet(logger, handle);
     //await twitter.getRecent(logger);
-    const ts = await twitter.getLastTimestamp(logger);
-    logger.info( { ts }, 'timestamp');
+    //const ts = await twitter.getLastTimestamp(logger);
+    //logger.info( { ts }, 'timestamp');
 }
 
 
