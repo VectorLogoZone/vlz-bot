@@ -83,7 +83,7 @@ async function getRecent(logger:Pino.Logger): Promise<string[]> {
 
 async function findRandomNotRecent(logger:Pino.Logger): Promise<Logo> {
 
-    const logoResponse = await axios.get('https://api.vectorlogo.zone/api/random.json');
+    const logoResponse = await axios.get('https://tools.vectorlogo.zone/api/random.json');
     logger.debug({ resp: logoResponse }, 'logo response');
 
     return {
