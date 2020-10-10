@@ -6,11 +6,13 @@ Bot to automate posting to social media for VectorLogoZone
 
 All settings are stored in environment variables.  The deploy and run scripts get them from a `.env` file.
 
-| name | description
-|------|----------------
-| TWITTER_BEARER_TOKEN | token for the Twitter API. Check [twitter_get_token.sh](bin/twitter_get_token.sh) to see how I got mine.
-| USERNAME | (not currently used) the username to enter in the basic-auth dialog (default=`admin`)
-| PASSWORD | (not currently used) the password to enter in the basic-auth dialog (default=`password`)
+| name                     | description
+|--------------------------|----------------
+| LOG_LEVEL                | pino log level
+| TWITTER_ACCESS_SECRET    |
+| TWITTER_ACCESS_TOKEN     |
+| TWITTER_CONSUMER_KEY     |
+| TWITTER_CONSUMER_SECRET  |
 
 ## Contributing
 
@@ -22,19 +24,15 @@ Contributions are welcome!  Please follow the standard Github [Fork & Pull Reque
 
 ## Credits
 
-Website:
-
-[![Cloudflare](https://www.vectorlogo.zone/logos/cloudflare/cloudflare-ar21.svg)](https://www.cloudflare.com/ "CDN")
 [![Git](https://www.vectorlogo.zone/logos/git-scm/git-scm-ar21.svg)](https://git-scm.com/ "Version control")
-[![Github](https://www.vectorlogo.zone/logos/github/github-ar21.svg)](https://github.com/ "Code hosting")
-[![Handlebars](https://www.vectorlogo.zone/logos/handlebarsjs/handlebarsjs-ar21.svg)](http://handlebarsjs.com/ "Templating")
-[![Koa](https://www.vectorlogo.zone/logos/koajs/koajs-ar21.svg)](https://koajs.com/ "Web framework")
+[![Github](https://www.vectorlogo.zone/logos/github/github-ar21.svg)](https://github.com/ "Code hosting/CI/Cron")
 [![Node.js](https://www.vectorlogo.zone/logos/nodejs/nodejs-ar21.svg)](https://nodejs.org/ "Application Server")
 [![yarn](https://www.vectorlogo.zone/logos/yarnpkg/yarnpkg-ar21.svg)](https://www.yarnpkg.com/ "JS Package Management")
 [![pino](https://www.vectorlogo.zone/logos/getpinoio/getpinoio-ar21.svg)](https://www.getpino.io/ "Logging")
-[![Twitter](https://www.vectorlogo.zone/logos/twitter/twitter-ar21.svg)](https://twitter.com/ "Twitter profile image (raster)")
+[![Twitter](https://www.vectorlogo.zone/logos/twitter/twitter-ar21.svg)](https://twitter.com/ "Where to post")
 [![TypeScript](https://www.vectorlogo.zone/logos/typescriptlang/typescriptlang-ar21.svg)](https://www.typescriptlang.org/ "Programming Language")
-[![Google Cloud Run](https://www.vectorlogo.zone/logos/google/google-ar21.svg)](https://cloud.google.com/run/ "Hosting")
+[![VectorLogoZone](https://www.vectorlogo.zone/logos/vectorlogozone/vectorlogozone-ar21.svg)](https://www.vectorlogo.zone/ "Logos")
 
-* [Google Cloud Scheduler](https://cloud.google.com/scheduler/)
-* [nodemon](https://nodemon.io/)
+* [axios](https://github.com/axios/axios)
+* [moment.js](https://momentjs.com/?)
+* [twit](https://github.com/ttezel/twit)
