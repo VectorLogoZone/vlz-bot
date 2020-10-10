@@ -1,9 +1,0 @@
-#
-# robots.txt for bot.vectorlogo.zone
-#
-# nothing indexable here, move along
-# 
-
-
-User-agent: *
-Disallow: /
