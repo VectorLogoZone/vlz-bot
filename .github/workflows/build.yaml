@@ -1,0 +1,21 @@
+name: build
+
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  setup-build-deploy:
+    name: Setup, Build, and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Compile
+        run: yarn run build

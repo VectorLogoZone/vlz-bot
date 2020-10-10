@@ -1,12 +1,12 @@
 import 'source-map-support/register'
 //import * as fs from 'fs';
-//import Twit from 'twit';
-const Twit = require('twit');
+import Twit from 'twit';
+//const Twit = require('twit');
 import Pino from 'pino';
 import axios from 'axios';
 import moment from 'moment';
 
-type Logo = {
+export type Logo = {
     handle: string,
     name: string
 };
@@ -29,7 +29,7 @@ async function getClient(logger:Pino.Logger):Promise<any> {
 
 const urlRegex = RegExp('^.*/logos/([^/]+)/.*$', 'g');
 
-async function getLastTimestamp(logger:Pino.Logger): Promise<moment.Moment> { 
+async function getLastTimestamp(logger:Pino.Logger): Promise<moment.Moment> {
     const twitterClient = await getClient(logger);
     const timelineResponse = await twitterClient.get('statuses/user_timeline', {
         count: 10,
@@ -63,7 +63,7 @@ async function getRecent(logger:Pino.Logger): Promise<string[]> {
             tweet_mode: 'extended'
         });
 
-    
+
     logger.debug({ apiResponse: timelineResponse }, 'timeline response');
 
     for (const tweet of timelineResponse.data) {
@@ -104,13 +104,13 @@ async function tweet(logger:Pino.Logger, logo:Logo) {
 
     if (!process.env.TWITTER_CONSUMER_KEY || !process.env.TWITTER_CONSUMER_SECRET) {
         throw new Error('you must set TWITTER_CONSUMER_KEY and TWITTER_CONSUMER_SECRET');
-    }   
+    }
 
     const twitterClient = await getClient(logger);
 
     /*
      * plain tweet
-    const tweetResponse = twitterClient.post('statuses/update', { 
+    const tweetResponse = twitterClient.post('statuses/update', {
         status: 'hello world again!',
         //source: '<a href="https://github.com/VectorLogoZone/vlz-bot">VLZ Bot</a>',
     });
@@ -128,34 +128,34 @@ async function tweet(logger:Pino.Logger, logo:Logo) {
 
 
     // post the media to Twitter
-    const uploadResponse = await twitterClient.post('media/upload', { 
-        media_data: b64content 
+    const uploadResponse = await twitterClient.post('media/upload', {
+        media_data: b64content
     });
     logger.debug({ apiResponse: uploadResponse }, 'upload response');
 
     // update its metadata
     const mediaIdStr = uploadResponse.data.media_id_string;
     const metadataResponse = await twitterClient.post('media/metadata/create', {
-        media_id: uploadResponse.data.media_id_string, 
-        alt_text: { text: `PNG Preview of the SVG logo for ${logo.name}` } 
+        media_id: uploadResponse.data.media_id_string,
+        alt_text: { text: `PNG Preview of the SVG logo for ${logo.name}` }
     });
     logger.debug({ apiResponse: metadataResponse }, 'metadata/create response');
 
     // post the tweet
-    const postResult = await twitterClient.post('statuses/update', { 
-        status: `${logo.name} vector (SVG) logos.  Check them out at https://vlz.one/${logo.handle}`, 
-        media_ids: [mediaIdStr], 
+    const postResult = await twitterClient.post('statuses/update', {
+        status: `${logo.name} vector (SVG) logos.  Check them out at https://vlz.one/${logo.handle}`,
+        media_ids: [mediaIdStr],
         source: 'vlz-bot',
         trim_user: true
     });
     logger.debug({ apiResponse: postResult }, 'update response');
 /*
     // delete the tweet
-    const deleteResult = twitterClient.post('statuses/destroy/:id', { 
-        id: postResult.id_str 
+    const deleteResult = twitterClient.post('statuses/destroy/:id', {
+        id: postResult.id_str
     });
     logger.debug({ apiResponse: deleteResult }, 'destroy response');
-*/  
+*/
 }
 
 export {

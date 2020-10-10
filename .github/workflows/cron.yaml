@@ -1,0 +1,28 @@
+name: build
+
+on:
+  schedule:
+    - cron: '00 5 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Compile
+        run: yarn run build
+
+      - name: Generate tweet
+        run: dist/tweet-cli.js
+        env:
+          LOG_LEVEL: ${{ secrets.LOG_LEVEL }}
+          TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
+          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_CONSUMER_KEY: ${{ secrets.TWITTER_CONSUMER_KEY }}
+          TWITTER_CONSUMER_SECRET: ${{ secrets.TWITTER_CONSUMER_SECRET }}
+

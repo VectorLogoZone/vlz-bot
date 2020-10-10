@@ -9,7 +9,5 @@ set -o nounset
 
 export $(cat .env)
 
-#
-# run in watch mode
-#npx nodemon 
-npx nodemon
+yarn run build
+node dist/tweet-cli.js
