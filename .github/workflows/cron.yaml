@@ -18,7 +18,7 @@ jobs:
         run: yarn run build
 
       - name: Generate tweet
-        run: dist/tweet-cli.js
+        run: node dist/tweet-cli.js
         env:
           LOG_LEVEL: ${{ secrets.LOG_LEVEL }}
           TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
