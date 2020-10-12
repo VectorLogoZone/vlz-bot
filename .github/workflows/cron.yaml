@@ -1,4 +1,4 @@
-name: build
+name: daily
 
 on:
   schedule:
@@ -17,6 +17,10 @@ jobs:
       - name: Compile
         run: yarn run build
 
+  tweet:
+    needs: build
+    
+    steps:
       - name: Generate tweet
         run: node dist/tweet-cli.js
         env:
