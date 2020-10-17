@@ -24,7 +24,8 @@ async function checkElapsed(logger:any):Promise<void> {
 
 async function main():Promise<twitter.Logo> {
     await checkElapsed(logger);
-    const logo = await twitter.findRandomNotRecent(logger);
+    const recent = await twitter.getRecent(logger);
+    const logo = await twitter.findRandomNotRecent(logger, recent);
     await twitter.tweet(logger, logo);
 
     return logo;

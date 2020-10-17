@@ -27,8 +27,6 @@ async function getClient(logger:Pino.Logger):Promise<any> {
     return twitterClient;
 }
 
-const urlRegex = RegExp('^.*/logos/([^/]+)/.*$', 'g');
-
 async function getLastTimestamp(logger:Pino.Logger): Promise<moment.Moment> {
     const twitterClient = await getClient(logger);
     const timelineResponse = await twitterClient.get('statuses/user_timeline', {
@@ -64,32 +62,37 @@ async function getRecent(logger:Pino.Logger): Promise<string[]> {
         });
 
 
-    logger.debug({ apiResponse: timelineResponse }, 'timeline response');
+    logger.trace({ apiResponse: timelineResponse }, 'timeline response');
 
     for (const tweet of timelineResponse.data) {
-        logger.debug({ created: tweet.created_at }, 'created');
+        logger.trace({ created: tweet.created_at, urls: tweet.entities.urls.map((x: any) => x.display_url) }, 'historical tweet');
         for (const url of tweet.entities.urls) {
-            const matches = urlRegex.exec(url.expanded_url);
-            //logger.debug({ url: url.expanded_url, matches }, "A Tweet!");
-            if (matches != null && matches.length >= 2) {
-                retVal.push( matches[1] );
+            if (url.display_url.startsWith("vlz.one/")) {
+                retVal.push(url.display_url.slice(8));
             }
         }
     }
+    retVal.sort()
     logger.debug( { handles: retVal }, "recently tweeted logos")
 
     return retVal;
 }
 
-async function findRandomNotRecent(logger:Pino.Logger): Promise<Logo> {
+async function findRandomNotRecent(logger:Pino.Logger, recent:string[]): Promise<Logo> {
 
-    const logoResponse = await axios.get('https://tools.vectorlogo.zone/api/random.json');
-    logger.debug({ resp: logoResponse }, 'logo response');
+    for (var x = 0; x < 100; x++) {
+        const logoResponse = await axios.get('https://tools.vectorlogo.zone/api/random.json');
+        logger.debug({ resp: logoResponse }, 'logo response');
 
-    return {
-        handle: logoResponse.data.logohandle,
-        name: logoResponse.data.name
+        if (!recent.find(x => x == logoResponse.data.logohandle)) {
+            return {
+                handle: logoResponse.data.logohandle,
+                name: logoResponse.data.name
+            }
+        }
+        logger.info({ recent, logo: logoResponse.data.logohandle}, "guessed a recent logo");
     }
+    throw new Error("No unused logos!?!?")
 }
 
 async function tweet(logger:Pino.Logger, logo:Logo) {
@@ -100,7 +103,12 @@ async function tweet(logger:Pino.Logger, logo:Logo) {
         responseType: 'arraybuffer'
         });
 
-    logger.debug({ resp: imgResponse }, 'img response');
+    logger.debug({
+        status: imgResponse.status,
+        statusText: imgResponse.statusText,
+        contentLength: imgResponse.headers["content-length"],
+        contentType: imgResponse.headers["content-type"],
+    }, 'img response');
 
     if (!process.env.TWITTER_CONSUMER_KEY || !process.env.TWITTER_CONSUMER_SECRET) {
         throw new Error('you must set TWITTER_CONSUMER_KEY and TWITTER_CONSUMER_SECRET');
