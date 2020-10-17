@@ -32,5 +32,7 @@ async function main():Promise<twitter.Logo> {
 
 main()
     .then((logo) => logger.info({ logo }, 'success'))
-    .catch(err => logger.error({ err }, 'failure'))
-    ;
+    .catch(err => {
+        logger.error({ err }, 'failure');
+        process.exit(1);
+    });
