@@ -1,10 +1,14 @@
 # VectorLogoZone Bot [<img alt="VectorLogoZone Logo" src="https://tools.vectorlogo.zone/favicon.svg" height="90" align="right" />](https://www.vectorlogo.zone/)
 
+[![daily](https://github.com/VectorLogoZone/vlz-bot/workflows/daily/badge.svg)](https://github.com/VectorLogoZone/vlz-bot/actions?query=workflow%3Adaily)
+
 Bot to automate posting to social media for VectorLogoZone
+
+See the results at [Twitter](https://twitter.com/VectorLogoZone).
 
 ## Settings
 
-All settings are stored in environment variables.  The deploy and run scripts get them from a `.env` file.
+All settings are stored in environment variables.
 
 | name                     | description
 |--------------------------|----------------
