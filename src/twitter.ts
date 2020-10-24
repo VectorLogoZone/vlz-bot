@@ -97,22 +97,25 @@ async function findRandomNotRecent(logger:Pino.Logger, recent:string[]): Promise
 
 async function tweet(logger:Pino.Logger, logo:Logo) {
 
+    if (!process.env.TWITTER_CONSUMER_KEY || !process.env.TWITTER_CONSUMER_SECRET) {
+        throw new Error('you must set TWITTER_CONSUMER_KEY and TWITTER_CONSUMER_SECRET');
+    }
+
     const imageUrl = `https://svg2raster.fileformat.info/vlz.jsp?svg=/logos/${logo.handle}/${logo.handle}-ar21.svg&width=1024`;
 
     const imgResponse = await axios.get(imageUrl, {
         responseType: 'arraybuffer'
-        });
+        }); 
 
     logger.debug({
+        imageUrl,
         status: imgResponse.status,
         statusText: imgResponse.statusText,
-        contentLength: imgResponse.headers["content-length"],
+        headers: imgResponse.headers,
         contentType: imgResponse.headers["content-type"],
+        imageSize: imgResponse.data.length,
+        dataType: typeof imgResponse.data,
     }, 'img response');
-
-    if (!process.env.TWITTER_CONSUMER_KEY || !process.env.TWITTER_CONSUMER_SECRET) {
-        throw new Error('you must set TWITTER_CONSUMER_KEY and TWITTER_CONSUMER_SECRET');
-    }
 
     const twitterClient = await getClient(logger);
 
@@ -133,7 +136,10 @@ async function tweet(logger:Pino.Logger, logo:Logo) {
     //var b64content = fs.readFileSync('./test.png', { encoding: 'base64' })
     var b64content = Buffer.from(imgResponse.data, 'binary').toString('base64');
 
-
+    logger.debug({
+        base64length: b64content.length,
+        base64content: b64content
+    }, "image converted to base64");
 
     // post the media to Twitter
     const uploadResponse = await twitterClient.post('media/upload', {
