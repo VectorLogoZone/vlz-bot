@@ -40,7 +40,7 @@ async function main() {
             headers: {
                 //"Content-Type": "multipart/form-data",
                 ...formData.getHeaders(),
-                "Content-Length": formData.getLengthSync()
+                "Content-Length": formData.getLengthSync().toString()
             }
         });
         logger.info( { apiResponse: postResponse }, 'page post response');
